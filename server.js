@@ -2,7 +2,7 @@
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
-
+var restify = require('restify');
 
 /**
  *  Define the sample application.
@@ -94,14 +94,14 @@ var SampleApp = function() {
     self.createRoutes = function() {
         self.routes = { };
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
+        self.routes['/products'] = function(req, res, next) {
+            res.send("You will see all the products in the colection with this end point");
+            return next();
         };
 
         self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
+            res.send("Funciona!");
+            return next();
         };
     };
 
@@ -112,12 +112,16 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
-
+        //self.app = express.createServer();
+        self.app = restify.createServer();
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
+
+        self.app.use(restify.acceptParser(self.app.acceptable));
+        self.app.use(restify.queryParser());
+        self.app.use(restify.bodyParser());
     };
 
 
@@ -139,9 +143,12 @@ var SampleApp = function() {
      */
     self.start = function() {
         //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, self.ipaddress, function() {
+        /*self.app.listen(self.port, self.ipaddress, function() {
             console.log('%s: Node server started on %s:%d ...',
                         Date(Date.now() ), self.ipaddress, self.port);
+        });*/
+        self.app.listen(8080, function () {
+            console.log("Server started @ 8080");
         });
     };
 
