@@ -94,17 +94,29 @@ var PrototypeServer = function() {
      *  Create the routing table entries + handlers for the application.
      */
     self.createRoutes = function() {
-        self.routes = { };
-
-        self.routes['/products'] = function(req, res, next) {
+        self.getroutes = { };
+        self.postroutes = { };
+        self.getroutes['/'] = function(req, res, next) {
+            fs.readFile('index.html', 'utf8', function (err,data) {
+              if (err) {
+                res.end('<html><head><title>Prototype</title></head><body>Error loading index.html!</body></html>');
+              }
+              res.end(data);
+            });
+            return next();
+        };
+        self.getroutes['/user'] = function(req, res, next) {
             res.send("You will see all the products in the colection with this end point");
             return next();
-        };
-        var texto = "Test";
-        self.routes['/'] = function(req, res, next) {
-            res.send(texto);
+        }; 
+        self.getroutes['/users'] = function(req, res, next) {
+            res.send("You will see all the products in the colection with this end point");
             return next();
-        };
+        }; 
+        self.postroutes['/exercise'] = function(req, res, next) {
+            res.send("You will see all the products in the colection with this end point");
+            return next();
+        }; 
     };
 
 
@@ -117,9 +129,11 @@ var PrototypeServer = function() {
         //self.app = express.createServer();
         self.app = restify.createServer();
         //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
-            self.app.post(r, self.routes[r]);
+        for (var gr in self.getroutes) {
+            self.app.get(gr, self.getroutes[gr]);
+        }
+        for (var pr in self.postroutes) {
+            self.app.post(pr, self.postroutes[pr]);
         }
 
         self.app.use(restify.acceptParser(self.app.acceptable));
