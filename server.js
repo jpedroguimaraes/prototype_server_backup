@@ -4,13 +4,15 @@ var express = require('express');
 var fs      = require('fs');
 var restify = require('restify');
 
+
 /**
  *  Define the sample application.
  */
-var SampleApp = function() {
+var PrototypeServer = function() {
 
     //  Scope.
     var self = this;
+
 
     /*  ================================================================  */
     /*  Helper functions.                                                 */
@@ -98,9 +100,9 @@ var SampleApp = function() {
             res.send("You will see all the products in the colection with this end point");
             return next();
         };
-
-        self.routes['/'] = function(req, res) {
-            res.send("Funciona!");
+        var texto = "Test";
+        self.routes['/'] = function(req, res, next) {
+            res.send(texto);
             return next();
         };
     };
@@ -117,6 +119,7 @@ var SampleApp = function() {
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
+            self.app.post(r, self.routes[r]);
         }
 
         self.app.use(restify.acceptParser(self.app.acceptable));
@@ -143,12 +146,9 @@ var SampleApp = function() {
      */
     self.start = function() {
         //  Start the app on the specific interface (and port).
-        /*self.app.listen(self.port, self.ipaddress, function() {
+        self.app.listen(self.port, self.ipaddress, function() {
             console.log('%s: Node server started on %s:%d ...',
                         Date(Date.now() ), self.ipaddress, self.port);
-        });*/
-        self.app.listen(8080, function () {
-            console.log("Server started @ 8080");
         });
     };
 
@@ -159,6 +159,6 @@ var SampleApp = function() {
 /**
  *  main():  Main code.
  */
-var zapp = new SampleApp();
+var zapp = new PrototypeServer();
 zapp.initialize();
 zapp.start();
