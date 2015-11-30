@@ -1,6 +1,5 @@
 #!/bin/env node
 //  OpenShift sample Node application
-var express = require('express');
 var fs      = require('fs');
 var restify = require('restify');
 
@@ -108,7 +107,7 @@ var PrototypeServer = function() {
             return next();
         };
         self.getroutes['/user'] = function(req, res, next) {
-            res.send("You will see all the products in the colection with this end point");
+            res.send("User " + req.params.id + "!");
             return next();
         }; 
         self.getroutes['/users'] = function(req, res, next) {
