@@ -99,8 +99,10 @@ var PrototypeServer = function() {
         self.getroutes['/'] = function(req, res, next) {
             fs.readFile('index.html', 'utf8', function (err,data) {
               if (err) {
+                res.writeHeader(200, {"Content-Type": "text/html"}); 
                 res.end('<html><head><title>Prototype</title></head><body>Error loading index.html!</body></html>');
               }
+              res.writeHeader(200, {"Content-Type": "text/html"}); 
               res.end(data);
             });
             return next();
