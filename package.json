@@ -1,7 +1,7 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "PrototypeServer",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "PrototypeServer",
   "keywords": [
     "OpenShift",
     "Node.js",
@@ -9,8 +9,8 @@
     "openshift"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
+    "name": "J. Pedro Guimaraes",
+    "email": "j.pedro.guimaraes@hotmail.com",
     "url": "http://www.openshift.com/"
   },
   "homepage": "http://www.openshift.com/",
@@ -25,10 +25,11 @@
   },
 
   "dependencies": {
+    "restify": "^3.0.2"
   },
   "devDependencies": {},
   "bundleDependencies": [],
 
-  "private": true,
+  "private": false,
   "main": "server.js"
 }

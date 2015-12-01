@@ -107,15 +107,15 @@ var PrototypeServer = function() {
             return next();
         };
         self.getroutes['/user'] = function(req, res, next) {
-            res.send("User " + req.params.id + "!");
+            res.json("User " + req.params.id + "!");
             return next();
         }; 
         self.getroutes['/users'] = function(req, res, next) {
-            res.send("You will see all the products in the colection with this end point");
+            res.json("You will see all the products in the colection with this end point");
             return next();
         }; 
         self.postroutes['/exercise'] = function(req, res, next) {
-            res.send("You will see all the products in the colection with this end point");
+            res.json("You will see all the products in the colection with this end point");
             return next();
         }; 
     };
@@ -128,7 +128,7 @@ var PrototypeServer = function() {
     self.initializeServer = function() {
         self.createRoutes();
         //self.app = express.createServer();
-        self.app = restify.createServer();
+        self.app = restify.createServer({ name: 'PrototypeServer' });
         //  Add handlers for the app (from the routes).
         for (var gr in self.getroutes) {
             self.app.get(gr, self.getroutes[gr]);
@@ -136,6 +136,19 @@ var PrototypeServer = function() {
         for (var pr in self.postroutes) {
             self.app.post(pr, self.postroutes[pr]);
         }
+
+        restify.CORS.ALLOW_HEADERS.push('accept');
+        restify.CORS.ALLOW_HEADERS.push('sid');
+        restify.CORS.ALLOW_HEADERS.push('lang');
+        restify.CORS.ALLOW_HEADERS.push('origin');
+        restify.CORS.ALLOW_HEADERS.push('withcredentials');
+        restify.CORS.ALLOW_HEADERS.push('x-requested-with');
+        self.app.use(restify.CORS({'origins': ['http://127.0.0.1:8080/']}));
+
+        self.app.use(function(req, res, next) {
+          res.charSet('utf-8');
+          next();
+        });
 
         self.app.use(restify.acceptParser(self.app.acceptable));
         self.app.use(restify.queryParser());
