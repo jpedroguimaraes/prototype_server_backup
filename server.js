@@ -1,13 +1,13 @@
 #!/bin/env node
 //  OpenShift sample Node application
+var express = require('express');
 var fs      = require('fs');
-var restify = require('restify');
 
 
 /**
  *  Define the sample application.
  */
-var PrototypeServer = function() {
+var SampleApp = function() {
 
     //  Scope.
     var self = this;
@@ -93,31 +93,15 @@ var PrototypeServer = function() {
      *  Create the routing table entries + handlers for the application.
      */
     self.createRoutes = function() {
-        self.getroutes = { };
-        self.postroutes = { };
-        self.getroutes['/'] = function(req, res, next) {
-            fs.readFile('index.html', 'utf8', function (err,data) {
-              if (err) {
-                res.writeHeader(200, {"Content-Type": "text/html"}); 
-                res.end('<html><head><title>Prototype</title></head><body>Error loading index.html!</body></html>');
-              }
-              res.writeHeader(200, {"Content-Type": "text/html"}); 
-              res.end(data);
-            });
-            return next();
+        /*self.routes = { };
+        self.routes['/asciimo'] = function(req, res) {
+            var link = "http://i.imgur.com/kmbjB.png";
+            res.send("<html><body><img src='" + link + "'></body></html>");
         };
-        self.getroutes['/user'] = function(req, res, next) {
-            res.json("User " + req.params.id + "!");
-            return next();
-        }; 
-        self.getroutes['/users'] = function(req, res, next) {
-            res.json("You will see all the products in the colection with this end point");
-            return next();
-        }; 
-        self.postroutes['/exercise'] = function(req, res, next) {
-            res.json("You will see all the products in the colection with this end point");
-            return next();
-        }; 
+        self.routes['/'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send(self.cache_get('index.html') );
+        };*/
     };
 
 
@@ -126,33 +110,28 @@ var PrototypeServer = function() {
      *  the handlers.
      */
     self.initializeServer = function() {
-        self.createRoutes();
-        //self.app = express.createServer();
-        self.app = restify.createServer({ name: 'PrototypeServer' });
-        //  Add handlers for the app (from the routes).
-        for (var gr in self.getroutes) {
-            self.app.get(gr, self.getroutes[gr]);
-        }
-        for (var pr in self.postroutes) {
-            self.app.post(pr, self.postroutes[pr]);
-        }
+        //self.createRoutes();
+        self.app = express.createServer();
 
-        restify.CORS.ALLOW_HEADERS.push('accept');
-        restify.CORS.ALLOW_HEADERS.push('sid');
-        restify.CORS.ALLOW_HEADERS.push('lang');
-        restify.CORS.ALLOW_HEADERS.push('origin');
-        restify.CORS.ALLOW_HEADERS.push('withcredentials');
-        restify.CORS.ALLOW_HEADERS.push('x-requested-with');
-        self.app.use(restify.CORS({'origins': ['http://127.0.0.1:8080/']}));
+        //  Add handlers for the app (from the routes).
+        /*for (var r in self.routes) {
+            self.app.get(r, self.routes[r]);
+        }*/
 
         self.app.use(function(req, res, next) {
-          res.charSet('utf-8');
-          next();
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
         });
 
-        self.app.use(restify.acceptParser(self.app.acceptable));
-        self.app.use(restify.queryParser());
-        self.app.use(restify.bodyParser());
+        self.app.get('/', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send(self.cache_get('index.html') );
+        });
+
+        self.app.post('/login', function(req, res, next) {
+            res.send("Welcome2!");
+        });
     };
 
 
@@ -187,6 +166,7 @@ var PrototypeServer = function() {
 /**
  *  main():  Main code.
  */
-var zapp = new PrototypeServer();
+var zapp = new SampleApp();
 zapp.initialize();
 zapp.start();
+

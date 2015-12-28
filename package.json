@@ -1,7 +1,7 @@
 {
-  "name": "PrototypeServer",
+  "name": "Revision-Server",
   "version": "1.0.0",
-  "description": "PrototypeServer",
+  "description": "Revision Server",
   "keywords": [
     "OpenShift",
     "Node.js",
@@ -11,9 +11,9 @@
   "author": {
     "name": "J. Pedro Guimaraes",
     "email": "j.pedro.guimaraes@hotmail.com",
-    "url": "http://www.openshift.com/"
+    "url": "http://revision-jpguimaraes.rhcloud.com/"
   },
-  "homepage": "http://www.openshift.com/",
+  "homepage": "http://revision-jpguimaraes.rhcloud.com/",
   "repository": {
     "type": "git",
     "url": "https://github.com/openshift/origin-server"
@@ -25,11 +25,11 @@
   },
 
   "dependencies": {
-    "restify": "^3.0.2"
+    "express": "~3.4.4"
   },
   "devDependencies": {},
   "bundleDependencies": [],
 
-  "private": false,
+  "private": true,
   "main": "server.js"
 }
