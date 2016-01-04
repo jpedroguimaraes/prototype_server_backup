@@ -2,7 +2,7 @@
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
-
+var bodyParser = require('body-parser');
 
 /**
  *  Define the sample application.
@@ -111,12 +111,18 @@ var Revision = function() {
      */
     self.initializeServer = function() {
         //self.createRoutes();
-        self.app = express.createServer();
+        //self.app = express.createServer();
+        self.app = express();
 
         //  Add handlers for the app (from the routes).
         /*for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }*/
+
+        self.app.use(bodyParser.json());       // to support JSON-encoded bodies
+        self.app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+          extended: true
+        })); 
 
         self.app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -129,8 +135,16 @@ var Revision = function() {
             res.send(self.cache_get('index.html') );
         });
 
+        self.app.get('/test', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+        });
+
         self.app.post('/login', function(req, res, next) {
-            res.send("Welcome2! " + req);
+            //res.send("Welcome2! " + req.body.username + " - " + req.body.pw);
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
         });
     };
 
