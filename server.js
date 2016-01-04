@@ -7,7 +7,7 @@ var fs      = require('fs');
 /**
  *  Define the sample application.
  */
-var SampleApp = function() {
+var Revision = function() {
 
     //  Scope.
     var self = this;
@@ -130,7 +130,7 @@ var SampleApp = function() {
         });
 
         self.app.post('/login', function(req, res, next) {
-            res.send("Welcome2!");
+            res.send("Welcome2! " + req);
         });
     };
 
@@ -166,7 +166,7 @@ var SampleApp = function() {
 /**
  *  main():  Main code.
  */
-var zapp = new SampleApp();
+var zapp = new Revision();
 zapp.initialize();
 zapp.start();
 
