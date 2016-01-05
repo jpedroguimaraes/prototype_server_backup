@@ -133,11 +133,55 @@ var Revision = function() {
         self.app.get('/', function(req, res, next) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
+            next();
+        });
+
+        self.app.get('/getdefectstatus', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getdefectupvotes', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getdefectdownvotes', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getresults', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getchallengeranking', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getteamranking', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
+        });
+
+        self.app.get('/getdefecttypes', function(req, res, next) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("ok");
+            next();
         });
 
         self.app.get('/test', function(req, res, next) {
             res.setHeader('Content-Type', 'text/html');
             res.send("ok");
+            next();
         });
 
         self.app.post('/login', function(req, res, next) {
@@ -145,6 +189,42 @@ var Revision = function() {
             var userid = 2;
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(userid));
+            next();
+        });
+
+        self.app.post('/submitdefects', function(req, res, next) {
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
+            next();
+        });
+
+        self.app.post('/updatedefectstatus', function(req, res, next) {
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
+            next();
+        });
+
+        self.app.post('/voteupdefect', function(req, res, next) {
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
+            next();
+        });
+
+        self.app.post('/votedowndefect', function(req, res, next) {
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
+            next();
+        });
+
+        self.app.post('/submitresults', function(req, res, next) {
+            var userid = 2;
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(userid));
+            next();
         });
     };
 
