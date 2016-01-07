@@ -186,7 +186,16 @@ var Revision = function() {
 
         self.app.post('/login', function(req, res, next) {
             //res.send("Welcome2! " + req.body.username + " - " + req.body.pw);
-            var userid = 2;
+            var userid;
+            if (req.body.username == "teste") {
+                if (req.body.pw == "teste") {
+                    userid = 1;
+                } else {
+                    userid = -1;
+                }
+            } else {
+                userid = -2;
+            }
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(userid));
             next();
