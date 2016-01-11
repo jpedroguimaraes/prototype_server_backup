@@ -1,8 +1,9 @@
 #!/bin/env node
 //  OpenShift sample Node application
-var express = require('express');
-var fs      = require('fs');
-var bodyParser = require('body-parser');
+var express     = require('express');
+var fs          = require('fs');
+var bodyParser  = require('body-parser');
+var mysql       = require('mysql');
 
 /**
  *  Define the sample application.
@@ -11,6 +12,14 @@ var Revision = function() {
 
     //  Scope.
     var self = this;
+
+    var connection = mysql.createConnection({
+        host: 'mysql://$OPENSHIFT_MYSQL_DB_HOST:$OPENSHIFT_MYSQL_DB_PORT/',
+        user: 'adminc53YrBb',
+        password: 'znT3SvzLAsJM',
+        database: 'revision',
+        multipleStatements: true
+    });
 
 
     /*  ================================================================  */
@@ -104,7 +113,6 @@ var Revision = function() {
         };*/
     };
 
-
     /**
      *  Initialize the server (express) and create the routes and register
      *  the handlers.
@@ -179,6 +187,14 @@ var Revision = function() {
         });
 
         self.app.get('/test', function(req, res, next) {
+            /*connection.connect();
+            connection.query('SELECT * from < table name >', function(err, rows, fields) {
+                  if (!err)
+                    console.log('The solution is: ', rows);
+                  else
+                    console.log('Error while performing Query.');
+            });
+            connection.end();*/
             res.setHeader('Content-Type', 'text/html');
             res.send("ok");
             next();
@@ -269,7 +285,6 @@ var Revision = function() {
 /**
  *  main():  Main code.
  */
-var zapp = new Revision();
-zapp.initialize();
-zapp.start();
-
+var revision_app = new Revision();
+revision_app.initialize();
+revision_app.start();
