@@ -5,6 +5,7 @@ var fs          = require('fs');
 var bodyParser  = require('body-parser');
 var mysql       = require('mysql');
 
+var util = require("util");
 /**
  *  Define the sample application.
  */
@@ -13,12 +14,13 @@ var Revision = function() {
     //  Scope.
     var self = this;
 
-    var connection = mysql.createConnection({
-        host: 'mysql://$OPENSHIFT_MYSQL_DB_HOST:$OPENSHIFT_MYSQL_DB_PORT/',
-        user: 'adminc53YrBb',
-        password: 'znT3SvzLAsJM',
+    var connectionpool = mysql.createConnection({
+        host: 'mysql://' + process.env.OPENSHIFT_MYSQL_DB_HOST + ':' + process.env.OPENSHIFT_MYSQL_DB_PORT + '/',
+        user: process.env.OPENSHIFT_MYSQL_DB_USERNAME,
+        password: process.env.OPENSHIFT_MYSQL_DB_PASSWORD,
         database: 'revision',
-        multipleStatements: true
+        multipleStatements: true,
+        debug : true
     });
 
 
@@ -187,16 +189,39 @@ var Revision = function() {
         });
 
         self.app.get('/test', function(req, res, next) {
-            /*connection.connect();
-            connection.query('SELECT * from < table name >', function(err, rows, fields) {
-                  if (!err)
-                    console.log('The solution is: ', rows);
-                  else
-                    console.log('Error while performing Query.');
-            });
-            connection.end();*/
             res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
+            var stuff = 'abc';
+
+            //connectionpool.getConnection()
+
+            /*.query('SELECT 1', function(err, rows, fields){
+                    if (err) {
+                        stuff = "ghi";
+                    }
+                    res.send("all ok");
+                    connection.release();
+                    next();
+            });*/
+
+            //connection.connect();
+            stuff = util.inspect(connectionpool, false, null);
+            //connection.query('SELECT 1', function(err, rows) {
+            //    stuff = 'def';
+            //});
+            stuff = stuff + "done";
+            res.send(JSON.stringify(stuff));
+            next();
+        });
+
+        self.app.get('/test2', function(req, res, next) {
+            var html = "<html><body>Host: " + process.env.OPENSHIFT_MYSQL_DB_HOST + "<br />";
+            html += "Port: " + process.env.OPENSHIFT_MYSQL_DB_PORT + "<br />";
+            html += "User: " + process.env.OPENSHIFT_MYSQL_DB_USERNAME + "<br />";
+            html += "Pass: " + process.env.OPENSHIFT_MYSQL_DB_PASSWORD + "<br />";
+            html += "Sock: " + process.env.OPENSHIFT_MYSQL_DB_SOCK + "<br />";
+            html += "URL: " + process.env.OPENSHIFT_MYSQL_DB_URL + "<br />";
+            html += "</body></html>"
+            res.send(html);
             next();
         });
 
