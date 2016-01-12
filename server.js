@@ -14,7 +14,7 @@ var Revision = function() {
     //  Scope.
     var self = this;
 
-    var connectionpool = mysql.createConnection({
+    var connectionpool = mysql.createConnection({ //createClient
         host: 'mysql://' + process.env.OPENSHIFT_MYSQL_DB_HOST + ':' + process.env.OPENSHIFT_MYSQL_DB_PORT + '/',
         user: process.env.OPENSHIFT_MYSQL_DB_USERNAME,
         password: process.env.OPENSHIFT_MYSQL_DB_PASSWORD,
