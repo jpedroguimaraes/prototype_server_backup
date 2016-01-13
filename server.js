@@ -14,11 +14,13 @@ var Revision = function() {
     //  Scope.
     var self = this;
 
-    var connectionpool = mysql.createConnection({ //createClient
-        host: 'mysql://' + process.env.OPENSHIFT_MYSQL_DB_HOST + ':' + process.env.OPENSHIFT_MYSQL_DB_PORT + '/',
+    var connection = mysql.createConnection({
+        host: process.env.OPENSHIFT_MYSQL_DB_HOST, 
+        port: process.env.OPENSHIFT_MYSQL_DB_PORT,
         user: process.env.OPENSHIFT_MYSQL_DB_USERNAME,
         password: process.env.OPENSHIFT_MYSQL_DB_PASSWORD,
         database: 'revision',
+        waitForConnection: true,
         multipleStatements: true,
         debug : true
     });
@@ -189,28 +191,19 @@ var Revision = function() {
         });
 
         self.app.get('/test', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            var stuff = 'abc';
-
-            //connectionpool.getConnection()
-
-            /*.query('SELECT 1', function(err, rows, fields){
-                    if (err) {
-                        stuff = "ghi";
-                    }
-                    res.send("all ok");
-                    connection.release();
-                    next();
-            });*/
-
-            //connection.connect();
-            stuff = util.inspect(connectionpool, false, null);
-            //connection.query('SELECT 1', function(err, rows) {
-            //    stuff = 'def';
-            //});
-            stuff = stuff + "done";
-            res.send(JSON.stringify(stuff));
-            next();
+            res.setHeader('Content-Type', 'application/json');
+            connection.query('select * from Utilizador',function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err:    err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
 
         self.app.get('/test2', function(req, res, next) {
@@ -226,20 +219,22 @@ var Revision = function() {
         });
 
         self.app.post('/login', function(req, res, next) {
-            //res.send("Welcome2! " + req.body.username + " - " + req.body.pw);
-            var userid;
-            if (req.body.username == "teste") {
-                if (req.body.pw == "teste") {
-                    userid = 1;
-                } else {
-                    userid = -1;
-                }
-            } else {
-                userid = -2;
-            }
+            var name = req.body.username;
+            var pw = req.body.pw;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "select * from Utilizador where username = '" + name + "' and password = '" + pw + "'";
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    //res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: req.body.username + req.body.pw + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
 
         self.app.post('/submitdefects', function(req, res, next) {
