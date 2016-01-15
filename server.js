@@ -148,30 +148,6 @@ var Revision = function() {
             next();
         });
 
-        self.app.get('/getdefectstatus', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
-            next();
-        });
-
-        self.app.get('/getdefectupvotes', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
-            next();
-        });
-
-        self.app.get('/getdefectdownvotes', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
-            next();
-        });
-
-        self.app.get('/getresults', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
-            next();
-        });
-
         self.app.get('/getchallengeranking', function(req, res, next) {
             res.setHeader('Content-Type', 'text/html');
             res.send("ok");
@@ -179,9 +155,20 @@ var Revision = function() {
         });
 
         self.app.get('/getteamranking', function(req, res, next) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send("ok");
-            next();
+            res.setHeader('Content-Type', 'application/json');
+            var q = "select * from User, Attempt_Multi where team = id_team group by id_team order by classification desc";
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
 
         self.app.get('/getdefecttypes', function(req, res, next) {
@@ -222,11 +209,11 @@ var Revision = function() {
             var name = req.body.username;
             var pw = req.body.pw;
             res.setHeader('Content-Type', 'application/json');
-            var q = "select * from Utilizador where username = '" + name + "' and password = '" + pw + "'";
+            var q = "select * from User where username = '" + name + "' and password = '" + pw + "'";
             connection.query(q, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
-                    //res.statusCode = 500;
+                    res.statusCode = 500;
                     res.send({
                         result: 'error',
                         err: req.body.username + req.body.pw + err.code
@@ -237,39 +224,268 @@ var Revision = function() {
             });
         });
 
-        self.app.post('/submitdefects', function(req, res, next) {
-            var userid = 2;
+        self.app.post('/checkteamready', function(req, res, next) {
+            var userid = req.body.id;
+            var attempt = req.body.attempt;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "select * from Individual_Attempt where ready = 0 and id_attempt = " + attempt + " and id_user <> " + userid;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
 
-        self.app.post('/updatedefectstatus', function(req, res, next) {
-            var userid = 2;
+        self.app.post('/checkteamdone', function(req, res, next) {
+            var userid = req.body.id;
+            var attempt = req.body.attempt;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "select * from Individual_Attempt where done = 0 and id_attempt = " + attempt + " and id_user <> " + userid;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
+        });
+
+        self.app.post('/ready', function(req, res, next) {
+            var userid = req.body.id;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "UPDATE Indivdual_Attempt SET ready = 1 WHERE id_user = " + userid;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/done', function(req, res, next) {
+            var userid = req.body.id;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "UPDATE Indivdual_Attempt SET done = 1 WHERE id_user = " + userid;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/adddefect', function(req, res, next) {
+            var attempt = req.body.attempt;
+            var defecttype = req.body.defecttype;
+            var description = req.body.description;
+            var dbegin = req.body.dbegin;
+            var dend = req.body.dend;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "INSERT INTO Defect_Multi (id_attempt, defecttype, description, dbegin, dend) VALUES (" + attempt + ", " + defecttype + ", '" + description + "', " + dbegin + ", " + dend + ")";
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/removedefects', function(req, res, next) {
+            var attempt = req.body.attempt;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "DELETE FROM Defect_Multi WHERE id_attempt =" + attempt;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/getdefectsmulti', function(req, res, next) {
+            var attempt = req.body.attempt;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "select * from Defect_Multi where id_attempt = " + attempt;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
+        });
+
+        self.app.post('/getdefectssingle', function(req, res, next) {
+            var attempt = req.body.attempt;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "select * from Defect_Single where id_attempt = " + attempt;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
 
         self.app.post('/voteupdefect', function(req, res, next) {
-            var userid = 2;
+            var defect = req.body.defect;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "UPDATE Defect_Multi SET votesup=1,votesdown=0 WHERE id_defect = " + defect;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
         });
 
         self.app.post('/votedowndefect', function(req, res, next) {
-            var userid = 2;
+            var defect = req.body.defect;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "UPDATE Defect_Multi SET votesup=0,votesdown=1 WHERE id_defect = " + defect;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/enabledefect', function(req, res, next) {
+            var defect = req.body.defect;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "UPDATE Defect_Multi SET active = false WHERE id_defect = " + defect;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/disabledefect', function(req, res, next) {
+            var defect = req.body.defect;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "UPDATE Defect_Multi SET active = false WHERE id_defect = " + defect;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
         });
 
         self.app.post('/submitresults', function(req, res, next) {
-            var userid = 2;
+            var team = req.body.team;
+            var classification = req.body.classification;
+            var seconds = req.body.seconds;
+            var hits = req.body.hits;
+            var missed = req.body.missed;
+            var incomplete = req.body.incomplete;
+            var wrong = req.body.wrong;
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(userid));
-            next();
+            var q = "UPDATE Attempt_Multi SET classification = " + classification + ", seconds = " + seconds + ", hits = " + hits + ", missed = " + missed + ", incomplete = " + incomplete + " WHERE id_team = " + team;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
+                connection.release();
+            });
+        });
+
+        self.app.post('/getteamresult', function(req, res, next) {
+            var attempt = req.body.attempt;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "select * from Attempt_Multi where id_attempt = " + attempt;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
         });
     };
 
