@@ -156,7 +156,7 @@ var Revision = function() {
 
         self.app.get('/getteamranking', function(req, res, next) {
             res.setHeader('Content-Type', 'application/json');
-            var q = "select * from User, Attempt_Multi where team = id_team group by id_team order by classification desc";
+            var q = "select * from User, Attempt_Multi where team = id_team and classification > 0 group by id_team order by classification desc";
             connection.query(q, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -299,13 +299,15 @@ var Revision = function() {
         });
 
         self.app.post('/adddefect', function(req, res, next) {
+            var iddefect = req.body.iddefect;
             var attempt = req.body.attempt;
             var defecttype = req.body.defecttype;
             var description = req.body.description;
             var dbegin = req.body.dbegin;
             var dend = req.body.dend;
+            var iduser = req.body.iduser;
             res.setHeader('Content-Type', 'application/json');
-            var q = "INSERT INTO Defect_Multi (id_attempt, defecttype, description, dbegin, dend) VALUES (" + attempt + ", " + defecttype + ", '" + description + "', " + dbegin + ", " + dend + ")";
+            var q = "INSERT INTO Defect_Multi (id_defect, id_attempt, defecttype, description, dbegin, dend, user) VALUES ('" + iddefect + "', " + attempt + ", " + defecttype + ", '" + description + "', " + dbegin + ", " + dend + ", " + iduser + ")";
             connection.query(q, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -455,7 +457,7 @@ var Revision = function() {
             var incomplete = req.body.incomplete;
             var wrong = req.body.wrong;
             res.setHeader('Content-Type', 'application/json');
-            var q = "UPDATE Attempt_Multi SET classification = " + classification + ", seconds = " + seconds + ", hits = " + hits + ", missed = " + missed + ", incomplete = " + incomplete + " WHERE id_team = " + team;
+            var q = "UPDATE Attempt_Multi SET classification = " + classification + ", seconds = " + seconds + ", hits = " + hits + ", misses = " + missed + ", incomplete = " + incomplete + " WHERE id_team = " + team;
             connection.query(q, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -473,7 +475,7 @@ var Revision = function() {
         self.app.post('/getteamresult', function(req, res, next) {
             var attempt = req.body.attempt;
             res.setHeader('Content-Type', 'application/json');
-            var q = "select * from Attempt_Multi where id_attempt = " + attempt;
+            var q = "select * from Attempt_Multi where id_team = " + attempt;
             connection.query(q, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -484,6 +486,43 @@ var Revision = function() {
                     });
                 }
                 res.send(rows);
+                connection.release();
+            });
+        });
+
+        self.app.post('/getteamtime', function(req, res, next) {
+            var attempt = req.body.attempt;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "select max(seconds) as totaltime from Individual_Attempt where id_attempt = " + attempt;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send(rows);
+                connection.release();
+            });
+        });
+
+        self.app.post('/updateteamtime', function(req, res, next) {
+            var iduser = req.body.iduser;
+            var seconds = req.body.seconds;
+            res.setHeader('Content-Type', 'application/json');
+            var q = "UPDATE Individual_Attempt SET seconds = " + seconds + " WHERE id_user = " + iduser;
+            connection.query(q, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err: q + err.code
+                    });
+                }
+                res.send();
                 connection.release();
             });
         });
